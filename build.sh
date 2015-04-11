@@ -67,9 +67,10 @@ then
 fi
 
 # Plugins
+PLUGIN_TYPE=plugin
 OUTPUT_PLUGINS_DIR=$OUTPUT_DIR/plugins
 OUTPUT_DIR_LUA=$OUTPUT_PLUGINS_DIR/$BUILD_NUMBER/lua
-OUTPUT_DIR_LUA_PLUGIN=$OUTPUT_DIR_LUA/plugin
+OUTPUT_DIR_LUA_PLUGIN=$OUTPUT_DIR_LUA/$PLUGIN_TYPE
 
 # Create directories
 mkdir -p "$OUTPUT_DIR"
@@ -85,19 +86,19 @@ checkError
 
 echo "------------------------------------------------------------------------"
 echo "[lua]"
-cp -vrf $path/lua/plugin "$OUTPUT_DIR_LUA_PLUGIN"
+cp -vrf "$path"/lua/$PLUGIN_TYPE "$OUTPUT_DIR_LUA_PLUGIN"
 checkError
 
 
 echo "------------------------------------------------------------------------"
 echo "[metadata.json]"
-cp -vrf $path/metadata.json "$OUTPUT_DIR"
+cp -vrf "$path"/metadata.json "$OUTPUT_DIR"
 checkError
 
 
 echo "------------------------------------------------------------------------"
 echo "Generating plugin zip"
-ZIP_FILE=$path/build-${LIBRARY_NAME}.zip
+ZIP_FILE="$path"/build-${LIBRARY_NAME}.zip
 cd "$OUTPUT_DIR"
 	zip -rv -x *.DS_Store @ "$ZIP_FILE" *
 cd -

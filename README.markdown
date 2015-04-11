@@ -2,32 +2,40 @@
 
 ## Overview
 
-This is a template/stationary for those interested in packaging Lua code into a reusable [library plugin](http://docs.coronalabs.com/native/plugin/index.html#types-of-plugins).
-
-You can use these plugins in your own [Corona](https://coronalabs.com/products/corona-sdk/) projects or distribute them in the [Corona Store](https://store.coronalabs.com)
+This is a template/stationary for those interested in packaging Lua code into a reusable [library plugin](http://docs.coronalabs.com/native/plugin/index.html#types-of-plugins). You can use these plugins in your own [Corona](https://coronalabs.com/products/corona-sdk/) projects or distribute them in the [Corona Store](https://store.coronalabs.com)
 
 
 ## New projects
 
 ### Creating your project
 
-To create a new project, the simplest process is to run [create_project.sh](create_project.sh) which requires a BASH shell:
+To create a new project, we have provided helper scripts that can do the necessary file renaming and string replacements for both Mac OS X and Windows. If you'd like to do this manually, see [Manual Project Creation](#manual-project-creation).
+
+#### Mac
+
+Run the script [create_project.sh](create_project.sh) in Terminal:
 
 ```
 cd /path/to/this/repo/
 ./create_project.sh /path/to/new/project/folder PLUGIN_NAME
 ```
 
-If you do not have access to BASH, see [Manual Project Creation](#manual-project-creation) below.
+#### Windows
 
-(TODO: Create a .bat script for Windows users.)
+Run the script [create_project.bat](create_project.bat) in the command prompt:
+
+```
+cd \path\to\this\repo\
+.\create_project.bat \path\to\new\project\folder PLUGIN_NAME
+```
 
 
 ### Project Files
 
 Your new project should contain the following files and folders:
 
-* [build.sh](build.sh)
+* [build.sh](build.sh) (Mac-only)
+* [build.bat](build.bat) (Windows-only)
 * [lua/](lua/)
 	+ __Test Harness:__
 		+ [build.settings](lua/build.settings)
@@ -46,7 +54,7 @@ Your new project should contain the following files and folders:
 
 __NOTE:__ _You should use dailybuild 2015.2610 or higher. If you are using a previous version, you will have to "flatten" the plugin file ( `plugin/PLUGIN_NAME.lua` => `plugin_PLUGIN_NAME.lua`) in order to load it in the Corona Simulator._
 
-For workflow convenience, the test harness and library plugin code are integrated to simplify shader effect development:
+For workflow convenience, the test harness and library plugin code are integrated to simplify library development:
 
 * The test harness is in the [lua/](lua/) folder, including the [lua/main.lua](lua/main.lua) file.
 * The library plugin is in the subfolder of the test harness: [lua/plugin/PLUGIN_NAME.lua](lua/plugin/PLUGIN_NAME.lua).
@@ -58,7 +66,7 @@ You can also open the test harness in [CoronaViewer](https://github.com/coronala
 
 ### Library Plugin File
 
-The stub/sample library plugin is something you should modify for your own purposes.
+The stub library plugin is something you should modify for your own purposes. The functionality implemented in the stub is explained in the [Doc Template for Library Docs](https://github.com/coronalabs/plugins-template-library-docs)
 
 
 ### Device Testing
@@ -95,30 +103,43 @@ If you'd like to submit a plugin, there are a few more steps you need to take:
 
 ### Packaging Your Plugin
 
-* There is a convenience script that takes care of packaging your plugin for submission to the Corona Store.
-* To run the script, open a Terminal to your project's root folder. There should be a script called `build.sh` that you can run:
+The packaging of your submission should follow a specific structure.
 
-```
-./build.sh
-```
+There is a convenience script that takes care of creating this structure (`build.sh` or `build.bat`). You must provide it with the daily build number corresponding to the minimum supported version of Corona (e.g. the first version of Corona you'd like the plugin to work with).
 
-This will create several files:
+#### Example
 
-* a `build/` folder
-* a `build-{PLUGIN_NAME}.zip` that contains all the files in `build/`. This is the file you should submit.
+For example, let's pretend we are submitting this repo's project. We'd like it to start working with daily build 2015.2560, so we would do the following:
+
+* On Mac, from Terminal: `./build.sh 2015.2560`
+* On Windows, from the command prompt: `build.bat 2015.2560`
+
+In both cases, we are assuming the current working directory is the base directory of the project.
+
+By default, the results will be placed in a `build` directory:
+
+* `metadata.json`
+* `plugins/`
+	+ `2015.2560/`
+		- `lua/`
+			- `plugin/`
+				- `PLUGIN_NAME.lua`
+
 
 
 ## Appendix
 
-### Namespace Details
+### Manual Project Creation
 
 The template project in this repo is designed to namespace your custom shader effects.
 
-The string token `PLUGIN_NAME` is used in the names of files/folders and in the contents of files. The [create_project.sh](create_project.sh) replaces occurrences of `PLUGIN_NAME` appropriately.
+In order to manually create a new project, you must:
 
-### Manual Project Creation
+1. copy the contents of this repo
+2. rename files with the appropriate namespace
+3. update the contents of the files with the appropriate namespace
 
-As explained in 'Namespace Details', the [create_project.sh](create_project.sh) does bulk string replacement for you. 
+The string token `PLUGIN_NAME` is used in _both_ the names of files/folders and in the contents of files. 
 
 You can manually replace all occurrences of `PLUGIN_NAME` yourself. Be sure to do this inside the contents of files __and__ in the names of files/folders themselves.
 
