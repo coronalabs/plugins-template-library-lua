@@ -1,16 +1,17 @@
 #!/bin/bash
 
-path=`dirname $0`
+path=$(dirname "$0")
 
 BUILD_NUMBER=$1
 BUILD_DIR=$2
 LIBRARY_NAME="PLUGIN_NAME"
 
+LUA_COMPILER_URL="https://raw.githubusercontent.com/CoronaLabs/plugins-template-bin/master/luac"
 
-#
+# Set to false if you do not want to compile your lua files into bytecode.
+compile=true
+
 # Verify arguments
-# 
-
 usage() {
 	echo "$0 daily_build_number [dst_dir]"
 	echo ""
@@ -20,57 +21,38 @@ usage() {
 }
 
 
-if [ ! "$BUILD_NUMBER" ]
-then
+if [ ! "$BUILD_NUMBER" ]; then
 	usage
 fi
 
-
-#
 # Checks exit value for error
-# 
 checkError() {
-    if [ $? -ne 0 ]
-    then
-        echo "Exiting due to errors (above)"
-        exit -1
-    fi
+	if [ $? -ne 0 ]; then
+		echo "Exiting due to errors (above)"
+		exit -1
+	fi
 }
 
-# 
 # Canonicalize relative paths to absolute paths
-# 
-pushd $path > /dev/null
-dir=`pwd`
+pushd "$path" > /dev/null
+dir=$(pwd)
 path=$dir
 popd > /dev/null
 
-#
 # Defaults
-#
-
-if [ ! "$BUILD_DIR" ]
-then
+if [ ! "$BUILD_DIR" ]; then
 	BUILD_DIR=$path/build
 fi
 
-
-#
-# OUTPUT_DIR
-# 
 OUTPUT_DIR=$BUILD_DIR
 
 # Clean build
-if [ -e "$OUTPUT_DIR" ]
-then
+if [ -e "$OUTPUT_DIR" ]; then
 	rm -rf "$OUTPUT_DIR"
 fi
 
 # Plugins
-PLUGIN_TYPE=plugin
-OUTPUT_PLUGINS_DIR=$OUTPUT_DIR/plugins
-OUTPUT_DIR_LUA=$OUTPUT_PLUGINS_DIR/$BUILD_NUMBER/lua
-OUTPUT_DIR_LUA_PLUGIN=$OUTPUT_DIR_LUA/$PLUGIN_TYPE
+OUTPUT_DIR_LUA="$OUTPUT_DIR/plugins/$BUILD_NUMBER/lua"
 
 # Create directories
 mkdir -p "$OUTPUT_DIR"
@@ -79,30 +61,52 @@ checkError
 mkdir -p "$OUTPUT_DIR_LUA"
 checkError
 
-
-#
-# Build
-#
-
-echo "------------------------------------------------------------------------"
-echo "[lua]"
-cp -vrf "$path"/lua/$PLUGIN_TYPE "$OUTPUT_DIR_LUA_PLUGIN"
+# Copy
+echo "[copy]"
+cp -vrf "$path/lua"/* "$OUTPUT_DIR_LUA"
 checkError
 
-
-echo "------------------------------------------------------------------------"
-echo "[metadata.json]"
+# Copy over metadata.json
 cp -vrf "$path"/metadata.json "$OUTPUT_DIR"
 checkError
 
+# Compile lua files.
+if [ "$compile" ]; then
+	echo ""
+	echo "[compile]"
 
-echo "------------------------------------------------------------------------"
-echo "Generating plugin zip"
-ZIP_FILE="$path"/build-${LIBRARY_NAME}.zip
-cd "$OUTPUT_DIR"
-	zip -rv -x *.DS_Store @ "$ZIP_FILE" *
-cd -
+	# Ensure we have the lua compiler.
+	if [ ! -x "./luac" ]; then
+		echo "Downloading luac compiler..."
+		curl --progress-bar "$LUA_COMPILER_URL" > "luac"
+		chmod +x luac
+	fi
 
-echo "------------------------------------------------------------------------"
+	# Verify lua integrity.
+	if ! ./luac -v | grep -q "^Lua"; then
+		echo "ERROR: The lua compiler could not be downloaded."
+		echo "Please verify your internet connection."
+		exit 100
+	fi
+
+	# Compile all lua files into bytecode.
+	./luac -v
+	find "$OUTPUT_DIR_LUA" -type f -name "*.lua" | while read luaFile; do
+		echo "compiling: $luaFile"
+		./luac -s -o "$luaFile" -- "$luaFile"
+		checkErro
+	done
+fi
+
+echo ""
+echo "[zip]"
+ZIP_FILE="$path/build-$LIBRARY_NAME.zip"
+cd "$OUTPUT_DIR" > /dev/null
+	rm -f "$ZIP_FILE"
+	zip -c -x '*.DS_Store' @ "$ZIP_FILE" ./*
+cd - > /dev/null
+
+echo ""
+echo "[complete]"
 echo "Plugin build succeeded."
 echo "Zip file located at: '$ZIP_FILE'"
