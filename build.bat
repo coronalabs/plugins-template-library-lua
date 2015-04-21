@@ -9,7 +9,9 @@ REM Setup
 REM ---------------------------------------------------------------------------
 
 set BUILD_DIR=%PATH_BAT%\builds
+
 set LUAC="%PATH_BAT%\bin\luac.exe"
+set SevenZip="%PATH_BAT%\bin\7za.exe"
 
 set LIBRARY_NAME=PLUGIN_NAME
 
@@ -53,7 +55,8 @@ REM ---------------------------------------------------------------------------
 echo.
 echo [zip]
 pushd %BUILD_DIR%
-zip -v -r -p "%ZIP_PATH%" *
+echo 7-Zip (A) 9.20 Copyright (c) 1999-2010 Igor Pavlov 2010-11-18
+%SevenZip% a -r -tzip -y "%ZIP_PATH%" * | FIND "Compressing"
 popd
 
 REM ---------------------------------------------------------------------------
