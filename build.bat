@@ -11,7 +11,7 @@ REM ---------------------------------------------------------------------------
 set BUILD_DIR=%PATH_BAT%\builds
 set LUAC=%PATH_BAT%\bin\luac.exe
 
-set LIBRARY_NAME=RickAndMorty
+set LIBRARY_NAME=PLUGIN_NAME
 
 set ZIP_PATH=%PATH_BAT%\plugin-%LIBRARY_NAME%.zip
 
