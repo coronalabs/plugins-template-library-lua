@@ -2,11 +2,7 @@
 
 path=$(dirname "$0")
 
-BUILD_NUMBER=$1
-BUILD_DIR=$2
 LIBRARY_NAME="PLUGIN_NAME"
-
-LUA_COMPILER_URL="https://raw.githubusercontent.com/CoronaLabs/plugins-template-bin/master/luac"
 
 # Set to false if you do not want to compile your lua files into bytecode.
 compile=true
@@ -19,11 +15,6 @@ usage() {
 	echo "  dst_dir: If not provided, will be '$path/build'"
 	exit -1
 }
-
-
-if [ ! "$BUILD_NUMBER" ]; then
-	usage
-fi
 
 # Checks exit value for error
 checkError() {
@@ -40,70 +31,48 @@ path=$dir
 popd > /dev/null
 
 # Defaults
-if [ ! "$BUILD_DIR" ]; then
-	BUILD_DIR=$path/build
-fi
-
-OUTPUT_DIR=$BUILD_DIR
+BUILD_DIR="$path/build"
 
 # Clean build
-if [ -e "$OUTPUT_DIR" ]; then
-	rm -rf "$OUTPUT_DIR"
+if [ -e "$BUILD_DIR" ]; then
+	rm -rf "$BUILD_DIR"
 fi
 
-# Plugins
-OUTPUT_DIR_LUA="$OUTPUT_DIR/plugins/$BUILD_NUMBER/lua"
-
 # Create directories
-mkdir -p "$OUTPUT_DIR"
-checkError
-
-mkdir -p "$OUTPUT_DIR_LUA"
+mkdir -p "$BUILD_DIR"
 checkError
 
 # Copy
 echo "[copy]"
-cp -vrf "$path/lua"/* "$OUTPUT_DIR_LUA"
+cp -vrf "$path/plugins" "$BUILD_DIR"
 checkError
 
-# Copy over metadata.json
-cp -vrf "$path"/metadata.json "$OUTPUT_DIR"
+cp -vrf "$path"/metadata.json "$BUILD_DIR"
 checkError
 
 # Compile lua files.
+LUAC="$path/bin/luac"
 if [ "$compile" ]; then
 	echo ""
 	echo "[compile]"
-
-	# Ensure we have the lua compiler.
-	if [ ! -x "./luac" ]; then
-		echo "Downloading luac compiler..."
-		curl --progress-bar "$LUA_COMPILER_URL" > "luac"
-		chmod +x luac
-	fi
-
-	# Verify lua integrity.
-	if ! ./luac -v | grep -q "^Lua"; then
-		echo "ERROR: The lua compiler could not be downloaded."
-		echo "Please verify your internet connection."
-		exit 100
-	fi
-
-	# Compile all lua files into bytecode.
-	./luac -v
-	find "$OUTPUT_DIR_LUA" -type f -name "*.lua" | while read luaFile; do
+	
+	"$LUAC" -v
+	checkError
+	
+	find "$BUILD_DIR" -type f -name "*.lua" | while read luaFile; do
 		echo "compiling: $luaFile"
-		./luac -s -o "$luaFile" -- "$luaFile"
-		checkErro
+		"$LUAC" -s -o "$luaFile" -- "$luaFile"
+		checkError
 	done
+	checkError
 fi
 
 echo ""
 echo "[zip]"
 ZIP_FILE="$path/build-$LIBRARY_NAME.zip"
-cd "$OUTPUT_DIR" > /dev/null
+cd "$BUILD_DIR" > /dev/null
 	rm -f "$ZIP_FILE"
-	zip -c -x '*.DS_Store' @ "$ZIP_FILE" ./*
+	zip -r -x '*.DS_Store' @ "$ZIP_FILE" ./*
 cd - > /dev/null
 
 echo ""

@@ -1,15 +1,16 @@
 # Project Template for Library Plugins (Lua)
 
+
 ## Overview
 
-This is a template/stationary for those interested in packaging Lua code into a reusable [library plugin](http://docs.coronalabs.com/native/plugin/index.html#types-of-plugins). You can use these plugins in your own [Corona](https://coronalabs.com/products/corona-sdk/) projects or distribute them in the [Corona Store](https://store.coronalabs.com)
+This is a template/stationary for those interested in packaging Lua code into a reusable [library plugin](http://docs.coronalabs.com/native/plugin/index.html#types-of-plugins). You can use these plugins in your own [Corona](https://coronalabs.com/products/corona-sdk/) projects or distribute them in the [Corona Store](https://store.coronalabs.com/plugins)
 
 
 ## New projects
 
 ### Creating your project
 
-To create a new project, we have provided helper scripts that can do the necessary file renaming and string replacements for both Mac OS X and Windows. If you'd like to do this manually, see [Manual Project Creation](#manual-project-creation).
+To create a new project, we have provided helper scripts that can do the necessary file renaming and string replacements for both Mac OS X and Windows.
 
 #### Mac
 
@@ -26,57 +27,45 @@ Run the script [create_project.bat](create_project.bat) in the command prompt:
 
 ```
 cd \path\to\this\repo\
-.\create_project.bat \path\to\new\project\folder PLUGIN_NAME
+create_project.bat \path\to\new\project\folder PLUGIN_NAME
 ```
-
 
 ### Project Files
 
 Your new project should contain the following files and folders:
 
-* [build.sh](build.sh) (Mac-only)
-* [build.bat](build.bat) (Windows-only)
-* [lua/](lua/)
-	+ __Test Harness:__
-		+ [build.settings](lua/build.settings)
-		+ [config.lua](lua/config.lua)
-		+ [main.lua](lua/main.lua)
-	+ __Plugin:__
-		+ [plugin/PLUGIN_NAME.lua](lua/plugin/PLUGIN_NAME.lua)
-			- This is a stub/sample library implementation that implements saving a table to a file and loading it back via JSON.
-* [metadata.json](metadata.json)
-* [README.markdown](README.markdown)
+* [bin/](bin/): Core binaries required to compile plugins into bytecode.
++ [build.bat](build.bat): Compiles and packages the plugin for distribution using Windows.
++ [build.sh](build.sh): Compiles and packages the plugin for distribution using a Mac.
+* [metadata.json](metadata.json): Contains publisher information, including contact and website data.
+* [plugins/VERSION/lua/](plugins/2015.2511/lua/)
+	+ The files here are included for users using the Simulator version VERSION or higher.
+	+ As an example, plugins/2015.2511/lua/ requires a minimum SDK version 2015.2511 to be included.
 
 
 ## Library Plugin Development
 
 ### Workflow
 
-__NOTE:__ _You should use dailybuild 2015.2610 or higher. If you are using a previous version, you will have to "flatten" the plugin file ( `plugin/PLUGIN_NAME.lua` => `plugin_PLUGIN_NAME.lua`) in order to load it in the Corona Simulator._
+__NOTE:__ _You should use dailybuild 2015.2610 or higher when developing your plugins. If you are using a previous version, you will have to "flatten" the plugin file ( `plugin/PLUGIN_NAME.lua` => `plugin_PLUGIN_NAME.lua`) in order to load it in the Corona Simulator. You can still target versions earlier than 2015.2610; this is purely a convenience feature for plugin developers starting in 2015.2610._
 
-For workflow convenience, the test harness and library plugin code are integrated to simplify library development:
+For rapid testing and development, it is suggested that you build your library locally and test your code as part of a normal project before moving it into a plugin library.
 
-* The test harness is in the [lua/](lua/) folder, including the [lua/main.lua](lua/main.lua) file.
-* The library plugin is in the subfolder of the test harness: [lua/plugin/PLUGIN_NAME.lua](lua/plugin/PLUGIN_NAME.lua).
+If you want to test it in the plugin environment, you can quickly copy and edit your plugin in the plugin download directory:
 
-That way, you can open the test harness in the Corona Simulator, modify your shader effects, and preview those changes immediately.
-
-You can also open the test harness in [CoronaViewer](https://github.com/coronalabs/CoronaViewer) to preview those changes immediately on a device.
-
+* Mac: `~/Library/Application Support/Corona/Simulator/Plugins/`
+* Windows: `%APPDATA%\Roaming\Corona Labs\Corona Simulator\Plugins`
 
 ### Library Plugin File
 
 The stub library plugin is something you should modify for your own purposes. The functionality implemented in the stub is explained in the [Doc Template for Library Docs](https://github.com/coronalabs/plugins-template-library-docs)
 
-
 ### Device Testing
 
-Device testing is very critical for several reasons:
+Device testing is critical for several reasons:
 
-* There are subtle differences in the flavor of GLSL that runs on desktop vs mobile. Even though your shader code compiles on a desktop (Mac/Win), you should make sure it also compiles on the device.
-* Mobile GPU's also have key performance differences that will not be apparent when running in the Corona Simulator. You should verify that the performance of your shader effect is acceptable on a wide range of devices. In general, you will want to run it on the oldest device you plan to support.
-
-[CoronaViewer](https://github.com/coronalabs/CoronaViewer) is a convenient way to develop your shader on a device, offering a similar workflow to the Corona Simulator.
+* If your plugin uses shaders, there are subtle differences in the flavor of GLSL that runs on desktop vs mobile.
+* Even though your code compiles on a desktop (Mac/Win), you should make sure it also compiles and runs on the device.
 
 
 ## Corona Store Submission
@@ -91,10 +80,9 @@ If you'd like to submit a plugin, there are a few more steps you need to take:
 	* Please see the section `Replacing strings in ALL CAPS` in the [Plugin Submission Guidelines](http://docs.coronalabs.com/daily/native/plugin/submission.html) for a complete list.
 2. Device Testing
 	* See [Device Testing](#device-testing) above.
-	* You should make sure your shader executes on iOS and Android devices. 
-	* Verify that your shader code compiles on device
+	* You should make sure your code executes on iOS and Android devices. 
+	* Verify that your code compiles on device
 	* Understand potential performance issues on lower-end devices.
-	* NOTE: Windows Phone 8 only supports precompiled shaders, so custom shader effects are not supported by those devices.
 3. Documentation
 	* Fork or clone [Doc Template for Library Docs](https://github.com/coronalabs/plugins-template-library-docs)
 	* Follow the [Instructions](https://github.com/coronalabs/plugins-template-library-docs/blob/master/Instructions.markdown)
@@ -111,35 +99,20 @@ There is a convenience script that takes care of creating this structure (`build
 
 For example, let's pretend we are submitting this repo's project. We'd like it to start working with daily build 2015.2560, so we would do the following:
 
-* On Mac, from Terminal: `./build.sh 2015.2560`
-* On Windows, from the command prompt: `build.bat 2015.2560`
+* Rename `plugins/2015.2511` to `plugins/2015.2560`.
 
-In both cases, we are assuming the current working directory is the base directory of the project.
+Next, we build our plugin. This converts your code into bytecode and prepares it for submission to the Corona Plugin Store. When this is complete, you will have a `plugin-<PLUGIN_NAME>.zip` file in your project directory, fit for uploading.
 
-By default, the results will be placed in a `build` directory:
+##### Mac
 
-* `metadata.json`
-* `plugins/`
-	+ `2015.2560/`
-		- `lua/`
-			- `plugin/`
-				- `PLUGIN_NAME.lua`
+```
+cd /path/to/this/repo/
+./build.sh
+```
 
+##### Windows
 
-
-## Appendix
-
-### Manual Project Creation
-
-The template project in this repo is designed to namespace your custom shader effects.
-
-In order to manually create a new project, you must:
-
-1. copy the contents of this repo
-2. rename files with the appropriate namespace
-3. update the contents of the files with the appropriate namespace
-
-The string token `PLUGIN_NAME` is used in _both_ the names of files/folders and in the contents of files. 
-
-You can manually replace all occurrences of `PLUGIN_NAME` yourself. Be sure to do this inside the contents of files __and__ in the names of files/folders themselves.
-
+```
+cd /path/to/this/repo/
+build.bat
+```

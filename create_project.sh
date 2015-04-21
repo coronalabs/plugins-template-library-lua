@@ -24,40 +24,40 @@ dir="$(pwd)"
 path="$dir"
 popd > /dev/null
 
-if [ ! -d "$DST_DIR" ]; then
-	mkdir -pv "$DST_DIR"
-fi
-
 # Copy files
-echo "Copying files to ($DST_DIR) ... "
-cp -R "$path"/* "$DST_DIR"
+echo "[copy]"
+if [ -d "$DST_DIR" ]; then
+	echo "ERROR: The build directory already exists. Please specify a new directory or delete $DST_DIR"
+	exit -1
+fi
+rsync -av --exclude ".*" --exclude "*.DS_Store" --exclude "create_project.*" --exclude "*.zip" --exclude "bin/*.markdown" --exclude "Readme.markdown" "$path"/ "$DST_DIR"
 checkError
 
-# Remove unneeded scripts from destination.
-rm -f "$DST_DIR"/create_project.sh
-rm -f "$DST_DIR"/create_project.bat
-
 # PLUGIN_NAME substitution
-echo "Updating with name ($LIBRARY_NAME) ..."
+echo ""
+echo "[patch]"
 pushd "$DST_DIR" > /dev/null
-	find . | while read file; do
-		# Rename any file called PLUGIN_NAME to the proper name
-		if [ -e "$file" ] && [[ "$file" == *PLUGIN_NAME* ]]; then
-			newFile="$(echo "$file" | sed "s/PLUGIN_NAME/$LIBRARY_NAME/g")"
-			mv "$file" "$newFile"
-			file="$newFile"
-			checkError
-		fi
-
-		# Replace string PLUGIN_NAME inside the files with proper name 
-		if [ ! -d "$file" ]; then
-			export LANG=C
-			sed -i '' "s/PLUGIN_NAME/$LIBRARY_NAME/g" "$file"
-			checkError
-		fi
+	# Rename any file called PLUGIN_NAME to the proper name
+	# ./foo/bar/PLUGIN_NAME.lua -> ./foo/bar/$LIBRARY_NAME.lua
+	find . -name "*PLUGIN_NAME*" | while read file; do
+		newFile="$(echo "$file" | sed "s/PLUGIN_NAME/$LIBRARY_NAME/g")"
+		mv "$file" "$newFile"
+		checkError
+		echo "renamed: $file -> $newFile"
+		file="$newFile"
 	done
+	checkError
 
+	# Replace string PLUGIN_NAME inside the files with proper name 
+	grep -slR "PLUGIN_NAME" . | while read file; do
+		export LANG=C
+		sed -i '' "s/PLUGIN_NAME/$LIBRARY_NAME/g" "$file"
+		checkError
+		echo "replaced: $file"
+	done
+	checkError
 popd > /dev/null
-echo "Done."
 
+echo ""
+echo "[done]"
 echo "SUCCESS: New project for ($LIBRARY_NAME) located at ($DST_DIR)."

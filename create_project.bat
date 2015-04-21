@@ -1,21 +1,22 @@
 @echo off
+SetLocal EnableDelayedExpansion
 
-:: ---------------------------------------------------------------------------
-:: Validate args
-:: ---------------------------------------------------------------------------
+REM ---------------------------------------------------------------------------
+REM Validate args
+REM ---------------------------------------------------------------------------
 
 if "%1"=="" goto OnShowCommandLineHelp
 if "%2"=="" goto OnShowCommandLineHelp
 
-:: ---------------------------------------------------------------------------
-:: Create Project
-:: ---------------------------------------------------------------------------
+REM ---------------------------------------------------------------------------
+REM Create Project
+REM ---------------------------------------------------------------------------
 
-:: Strip trailing \
+REM Strip trailing \
 set src=%~dp0
 if %src:~-1%==\ set src=%src:~0,-1%
 
-:: [Strip off double quotes with ~]
+REM [Strip off double quotes with ~]
 set dst=%~1
 
 set name=%2
@@ -29,33 +30,30 @@ if exist "%dst%" (
 	)
 )
 
-echo New project will be created in (%dst%) for plugin (%name%)...
-echo Using template files (%src%)
-
-:: [Copy into new project folder]
-echo xcopy "%src%" "%dst%" /I /S
+REM [Copy into new project folder]
+echo [copy]
 xcopy "%src%" "%dst%" /I /S /EXCLUDE:.bat_ignore
 
-:: [Rename directories]
-:: [TODO: Dynamically find files to rename, instead of this static list]
-move "%dst%\lua\kernel\composite\PLUGIN_NAME" "%dst%\lua\kernel\composite\%name%"
-move "%dst%\lua\kernel\filter\PLUGIN_NAME" "%dst%\lua\kernel\filter\%name%"
-move "%dst%\lua\kernel\generator\PLUGIN_NAME" "%dst%\lua\kernel\generator\%name%"
+REM [Rename]
+echo.
+echo [patch]
+for /R %dst% %%F in (*PLUGIN_NAME*) do (
+	set oldName=%%F
+	set newName=!oldName:PLUGIN_NAME=%name%!
+	move /Y !oldName! !newName! > nul
+	echo Renamed !newName!
+)
 
 call :FindReplace PLUGIN_NAME %name% "%dst%"
 
-:: [Find/Replace string]
-:: for /r "%dst%" %%A in (*) do (
-:: 	echo Creating "%%A"
-:: 	call :FindReplace PLUGIN_NAME %name% "%%A"
-:: )
-
-echo Done!
+echo.
+echo [done]
+echo SUCCESS: New project for ("%name%") located at ("%dst%").
 goto :eof
 
-:: ---------------------------------------------------------------------------
-:: Subroutines
-:: ---------------------------------------------------------------------------
+REM ---------------------------------------------------------------------------
+REM Subroutines
+REM ---------------------------------------------------------------------------
 
 :OnShowCommandLineHelp
 echo Usage: %0 newProjectDir pluginName
@@ -65,7 +63,7 @@ exit /b 1
 echo ERROR: %dst% already exists
 exit /b 1
 
-:: FindReplace <findstr> <replstr> <srcDir>
+REM FindReplace <findstr> <replstr> <srcDir>
 :FindReplace
 set searchStr=%1
 set replaceStr=%2
@@ -73,10 +71,10 @@ set srcDir=%~3
 
 set tmpfile=%srcfile%-tmp
 
-:: echo Using: %srcDir% %tmpfile%
-:: echo "%searchStr%" "%replaceStr%"
+REM echo Using: %srcDir% %tmpfile%
+REM echo "%searchStr%" "%replaceStr%"
 
-:: Create helper for FindReplace
+REM Create helper for FindReplace
 set vbsfile=%dst%\_.vbs
 call :MakeReplace "%vbsfile%"
 
@@ -88,7 +86,7 @@ for /f "tokens=*" %%a in ('dir "%srcDir%" /s /b /a-d /on') do (
   )
 )
 
-:: Cleanup
+REM Cleanup
 del "%vbsfile%"
 
 goto :eof

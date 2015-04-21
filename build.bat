@@ -1,75 +1,66 @@
 @echo off
 
-:: Strip trailing \
+REM Strip trailing \
 set PATH_BAT=%~dp0
 if %PATH_BAT:~-1%==\ set PATH_BAT=%PATH_BAT:~0,-1%
 
-:: ---------------------------------------------------------------------------
-:: Validate args
-:: ---------------------------------------------------------------------------
+REM ---------------------------------------------------------------------------
+REM Setup
+REM ---------------------------------------------------------------------------
 
-if "%1"=="" goto OnShowCommandLineHelp
+set BUILD_DIR=%PATH_BAT%\builds
+set LUAC=%PATH_BAT%\bin\luac.exe
 
-:: ---------------------------------------------------------------------------
-:: Setup
-:: ---------------------------------------------------------------------------
+set LIBRARY_NAME=RickAndMorty
 
-set BUILD_NUMBER=%1
-set BUILD_DIR=%2
-set LIBRARY_NAME="PLUGIN_NAME"
+set ZIP_PATH=%PATH_BAT%\plugin-%LIBRARY_NAME%.zip
 
-
-:: Defaults
-if "%BUILD_DIR%" == "" (
-	set BUILD_DIR=%PATH_BAT%\build
+REM Clean build
+if exist "%BUILD_DIR%" (
+	rmdir /s /q "%BUILD_DIR%"
+)
+if exist "%ZIP_PATH%" (
+	del /q "%BUILD_DIR%"
 )
 
-:: OUTPUT_DIR
-set OUTPUT_DIR=%BUILD_DIR%
+REM Create directories
+mkdir "%BUILD_DIR%"
 
-:: Clean build
-if exist "%OUTPUT_DIR%" (
-	del "%OUTPUT_DIR%"
-)
+REM ---------------------------------------------------------------------------
+REM Copy files over.
+REM ---------------------------------------------------------------------------
 
-:: Plugins
-set PLUGIN_TYPE=plugin
-set OUTPUT_PLUGINS_DIR=%OUTPUT_DIR%\plugins
-set OUTPUT_DIR_LUA=%OUTPUT_PLUGINS_DIR%\%BUILD_NUMBER%\lua
-set OUTPUT_DIR_LUA_PLUGIN=%OUTPUT_DIR_LUA%/%PLUGIN_TYPE%
+echo [copy]
+xcopy /I /S "%PATH_BAT%"\plugins "%BUILD_DIR%\plugins"
+copy "%PATH_BAT%\metadata.json" "%BUILD_DIR%\metadata.json"
 
-:: Create directories
-mkdir "%OUTPUT_DIR%"
-mkdir "%OUTPUT_DIR_LUA%"
+REM ---------------------------------------------------------------------------
+REM Compile lua files.
+REM ---------------------------------------------------------------------------
 
-:: ---------------------------------------------------------------------------
-:: Build
-:: ---------------------------------------------------------------------------
-
-echo ------------------------------------------------------------------------
-echo [lua]
-xcopy "%PATH_BAT%"\lua\%PLUGIN_TYPE% "%OUTPUT_DIR_LUA_PLUGIN%" /I /S
-
-
-echo ------------------------------------------------------------------------
-echo [metadata.json]
-copy %PATH_BAT%\metadata.json "%OUTPUT_DIR%"
-
-
-echo ------------------------------------------------------------------------
-echo Plugin build succeeded.
-echo Build files located at: '%BUILD_DIR%'
-
-
-goto :eof
-
-:: ---------------------------------------------------------------------------
-:: Subroutines
-:: ---------------------------------------------------------------------------
-
-:OnShowCommandLineHelp
-echo Usage: $0 daily_build_number [dst_dir]
 echo.
-echo   daily_build_number: The daily build number, e.g. 2015.2560
-echo   dst_dir: If not provided, will be '%PATH_BAT%/build'
-exit /b 1
+echo [compile]
+%LUAC% -v
+For /R "%BUILD_DIR%" %%F in (*.lua) Do (
+	echo Compiling %%F
+	%LUAC% -s -o "%%F" -- "%%F"
+)
+
+REM ---------------------------------------------------------------------------
+REM Zip up files.
+REM ---------------------------------------------------------------------------
+
+echo.
+echo [zip]
+pushd %BUILD_DIR%
+zip -v -r -p "%ZIP_PATH%" *
+popd
+
+REM ---------------------------------------------------------------------------
+REM Finish.
+REM ---------------------------------------------------------------------------
+
+echo.
+echo [complete]
+echo Plugin build succeeded.
+echo Zip file located at: %ZIP_PATH%
