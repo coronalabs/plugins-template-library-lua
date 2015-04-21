@@ -9,7 +9,7 @@ REM Setup
 REM ---------------------------------------------------------------------------
 
 set BUILD_DIR=%PATH_BAT%\builds
-set LUAC=%PATH_BAT%\bin\luac.exe
+set LUAC="%PATH_BAT%\bin\luac.exe"
 
 set LIBRARY_NAME=PLUGIN_NAME
 
