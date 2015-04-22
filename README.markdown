@@ -34,14 +34,13 @@ create_project.bat \path\to\new\project\folder PLUGIN_NAME
 
 Your new project should contain the following files and folders:
 
-* [bin/](bin/): Core binaries required to compile plugins into bytecode.
+* [bin/](bin/): Core binaries required by the build process.
 + [build.bat](build.bat): Compiles and packages the plugin for distribution using Windows.
 + [build.sh](build.sh): Compiles and packages the plugin for distribution using a Mac.
 * [metadata.json](metadata.json): Contains publisher information, including contact and website data.
 * [plugins/VERSION/lua/](plugins/2015.2511/lua/)
-	+ The files here are included for users using the Simulator version VERSION or higher.
+	+ The files here are included for users building with the Simulator build VERSION or higher.
 	+ As an example, plugins/2015.2511/lua/ requires a minimum SDK version 2015.2511 to be included.
-
 
 ## Library Plugin Development
 
@@ -97,11 +96,7 @@ There is a convenience script that takes care of creating this structure (`build
 
 #### Example
 
-For example, let's pretend we are submitting this repo's project. We'd like it to start working with daily build 2015.2560, so we would do the following:
-
-* Rename `plugins/2015.2511` to `plugins/2015.2560`.
-
-Next, we build our plugin. This converts your code into bytecode and prepares it for submission to the Corona Plugin Store. When this is complete, you will have a `plugin-<PLUGIN_NAME>.zip` file in your project directory, fit for uploading.
+For example, let's pretend we are submitting this repo's project by build our plugin. This converts your code into bytecode and prepares it for submission to the Corona Plugin Store. When this is complete, you will have a `plugin-<PLUGIN_NAME>.zip` file in your project directory, fit for uploading.
 
 ##### Mac
 
