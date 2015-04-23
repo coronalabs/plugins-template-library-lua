@@ -44,7 +44,6 @@ for /R "%dst%" %%F in (*PLUGIN_NAME*) do (
 	echo Renamed !newName!
 )
 for /D /R "%dst%" %%F in (*PLUGIN_NAME*) do (
-	echo %%F
 	set oldName=%%F
 	set newName=!oldName:PLUGIN_NAME=%name%!
 	move /Y "!oldName!" "!newName!" > nul
