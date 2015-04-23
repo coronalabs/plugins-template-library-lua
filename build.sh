@@ -3,13 +3,14 @@
 path=$(dirname "$0")
 
 LIBRARY_NAME="PLUGIN_NAME"
+LIBRARY_TYPE="plugin"
 
 # Set to false if you do not want to compile your lua files into bytecode.
 compile=true
 
 # Verify arguments
 usage() {
-	echo "$0 daily_build_number [dst_dir]"
+	echo "$0 [daily_build_number [dst_dir]]"
 	echo ""
 	echo "  daily_build_number: The daily build number, e.g. 2015.2560"
 	echo "  dst_dir: If not provided, will be '$path/build'"
@@ -30,21 +31,30 @@ dir=$(pwd)
 path=$dir
 popd > /dev/null
 
-# Defaults
-BUILD_DIR="$path/build"
+# Default target version.
+BUILD_TARGET="$1"
+if [ -z "$BUILD_TARGET" ]; then
+	BUILD_TARGET="2015.2511"
+fi
 
-# Clean build
+# Default build directory.
+BUILD_DIR="$2"
+if [ ! -e "$BUILD_DIR" ]; then
+	BUILD_DIR="$path/build"
+fi
+
+# Clean build directory.
 if [ -e "$BUILD_DIR" ]; then
 	rm -rf "$BUILD_DIR"
 fi
 
-# Create directories
-mkdir -p "$BUILD_DIR"
-checkError
+# Get our Lua directory.
+BUILD_DIR_LUA="$BUILD_DIR/plugins/$BUILD_TARGET/lua"
+mkdir -p "$BUILD_DIR_LUA"
 
 # Copy
 echo "[copy]"
-cp -vrf "$path/plugins" "$BUILD_DIR"
+cp -vrf "$path/lua/$LIBRARY_TYPE" "$BUILD_DIR_LUA"
 checkError
 
 cp -vrf "$path"/metadata.json "$BUILD_DIR"
@@ -59,7 +69,7 @@ if [ "$compile" ]; then
 	"$LUAC" -v
 	checkError
 	
-	find "$BUILD_DIR" -type f -name "*.lua" | while read luaFile; do
+	find "$BUILD_DIR_LUA" -type f -name "*.lua" | while read luaFile; do
 		echo "compiling: $luaFile"
 		"$LUAC" -s -o "$luaFile" -- "$luaFile"
 		checkError

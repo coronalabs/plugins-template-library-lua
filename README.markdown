@@ -16,7 +16,7 @@ To create a new project, we have provided helper scripts that can do the necessa
 
 Run the script [create_project.sh](create_project.sh) in Terminal:
 
-```
+```bash
 cd /path/to/this/repo/
 ./create_project.sh /path/to/new/project/folder PLUGIN_NAME
 ```
@@ -25,7 +25,7 @@ cd /path/to/this/repo/
 
 Run the script [create_project.bat](create_project.bat) in the command prompt:
 
-```
+```batch
 cd \path\to\this\repo\
 create_project.bat \path\to\new\project\folder PLUGIN_NAME
 ```
@@ -38,9 +38,16 @@ Your new project should contain the following files and folders:
 + [build.bat](build.bat): Compiles and packages the plugin for distribution using Windows.
 + [build.sh](build.sh): Compiles and packages the plugin for distribution using a Mac.
 * [metadata.json](metadata.json): Contains publisher information, including contact and website data.
-* [plugins/VERSION/lua/](plugins/2015.2511/lua/)
-	+ The files here are included for users building with the Simulator build VERSION or higher.
-	+ As an example, plugins/2015.2511/lua/ requires a minimum SDK version 2015.2511 to be included.
+* [lua/](lua/)
+	+ __Test Harness:__
+		+ [build.settings](lua/build.settings)
+		+ [config.lua](lua/config.lua)
+		+ [main.lua](lua/main.lua)
+	+ __Plugin:__
+		+ [plugin/PLUGIN_NAME.lua](lua/plugin/PLUGIN_NAME.lua)
+			- This is a stub/sample library implementation that implements saving a table to a file and loading it back via JSON.
+		+ [plugin/PLUGIN_NAME/defaults.lua](lua/plugin/PLUGIN_NAME/defaults.lua)
+			- This is a helper library for PLUGIN_NAME.
 
 ## Library Plugin Development
 
@@ -48,12 +55,14 @@ Your new project should contain the following files and folders:
 
 __NOTE:__ _You should use dailybuild 2015.2610 or higher when developing your plugins. If you are using a previous version, you will have to "flatten" the plugin file ( `plugin/PLUGIN_NAME.lua` => `plugin_PLUGIN_NAME.lua`) in order to load it in the Corona Simulator. You can still target versions earlier than 2015.2610; this is purely a convenience feature for plugin developers starting in 2015.2610._
 
-For rapid testing and development, it is suggested that you build your library locally and test your code as part of a normal project before moving it into a plugin library.
+For workflow convenience, the test harness and library plugin code are integrated to simplify shader effect development:
 
-If you want to test it in the plugin environment, you can quickly copy and edit your plugin in the plugin download directory:
+* The test harness is in the [lua/](lua/) folder, including the [lua/main.lua](lua/main.lua) file.
+* The library plugin is in the subfolder of the test harness: [lua/plugin/PLUGIN_NAME.lua](lua/plugin/PLUGIN_NAME.lua).
 
-* Mac: `~/Library/Application Support/Corona/Simulator/Plugins/`
-* Windows: `%APPDATA%\Roaming\Corona Labs\Corona Simulator\Plugins`
+That way, you can open the test harness in the Corona Simulator, modify your shader effects, and preview those changes immediately.
+
+You can also open the test harness in [CoronaViewer](https://github.com/coronalabs/CoronaViewer) to preview those changes immediately on a device.
 
 ### Library Plugin File
 
@@ -92,7 +101,7 @@ If you'd like to submit a plugin, there are a few more steps you need to take:
 
 The packaging of your submission should follow a specific structure.
 
-There is a convenience script that takes care of creating this structure (`build.sh` or `build.bat`). You must provide it with the daily build number corresponding to the minimum supported version of Corona (e.g. the first version of Corona you'd like the plugin to work with).
+There is a convenience script that takes care of creating this structure (`build.sh` or `build.bat`). You can provide it with the daily build number corresponding to the minimum supported version of Corona (e.g. the first version of Corona you'd like the plugin to work with).
 
 #### Example
 
@@ -100,14 +109,14 @@ For example, let's pretend we are submitting this repo's project by build our pl
 
 ##### Mac
 
-```
+```bash
 cd /path/to/this/repo/
 ./build.sh
 ```
 
 ##### Windows
 
-```
+```batch
 cd /path/to/this/repo/
 build.bat
 ```

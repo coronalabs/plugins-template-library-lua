@@ -8,12 +8,21 @@ REM ---------------------------------------------------------------------------
 REM Setup
 REM ---------------------------------------------------------------------------
 
-set BUILD_DIR=%PATH_BAT%\builds
+set BUILD_TARGET=2015.2511
+if not "%1"=="" (
+	set BUILD_TARGET="%1"
+)
+
+set BUILD_DIR=%PATH_BAT%\build
+if not "%2"=="" (
+	set BUILD_DIR="%2"
+)
 
 set LUAC="%PATH_BAT%\bin\luac.exe"
 set SevenZip="%PATH_BAT%\bin\7za.exe"
 
 set LIBRARY_NAME=PLUGIN_NAME
+set LIBRARY_TYPE="plugin"
 
 set ZIP_PATH=%PATH_BAT%\plugin-%LIBRARY_NAME%.zip
 
@@ -22,18 +31,19 @@ if exist "%BUILD_DIR%" (
 	rmdir /s /q "%BUILD_DIR%"
 )
 if exist "%ZIP_PATH%" (
-	del /q "%BUILD_DIR%"
+	del /q "%ZIP_PATH%"
 )
 
 REM Create directories
-mkdir "%BUILD_DIR%"
+set BUILD_DIR_LUA=%BUILD_DIR%\plugins\%BUILD_TARGET%\lua
+mkdir "%BUILD_DIR_LUA%"
 
 REM ---------------------------------------------------------------------------
 REM Copy files over.
 REM ---------------------------------------------------------------------------
 
 echo [copy]
-xcopy /I /S "%PATH_BAT%"\plugins "%BUILD_DIR%\plugins"
+xcopy /I /S "%PATH_BAT%\lua\%LIBRARY_TYPE%" "%BUILD_DIR_LUA%" /EXCLUDE:.bat_ignore
 copy "%PATH_BAT%\metadata.json" "%BUILD_DIR%\metadata.json"
 
 REM ---------------------------------------------------------------------------
