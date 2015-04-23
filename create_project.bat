@@ -37,10 +37,17 @@ xcopy "%src%" "%dst%" /I /S /EXCLUDE:.bat_ignore
 REM [Rename]
 echo.
 echo [patch]
-for /R %dst% %%F in (*PLUGIN_NAME*) do (
+for /R "%dst%" %%F in (*PLUGIN_NAME*) do (
 	set oldName=%%F
 	set newName=!oldName:PLUGIN_NAME=%name%!
-	move /Y !oldName! !newName! > nul
+	move /Y "!oldName!" "!newName!" > nul
+	echo Renamed !newName!
+)
+for /D /R "%dst%" %%F in (*PLUGIN_NAME*) do (
+	echo %%F
+	set oldName=%%F
+	set newName=!oldName:PLUGIN_NAME=%name%!
+	move /Y "!oldName!" "!newName!" > nul
 	echo Renamed !newName!
 )
 
