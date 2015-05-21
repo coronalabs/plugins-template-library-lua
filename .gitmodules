@@ -1,3 +1,5 @@
 [submodule "bin"]
 	path = bin
 	url = git@github.com:coronalabs/plugins-template-bin.git
+	fetchRecurseSubmodules = true
+	ignore = untracked
