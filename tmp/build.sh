@@ -31,7 +31,7 @@ popd > /dev/null
 # Default target version.
 BUILD_TARGET="$1"
 if [ -z "$BUILD_TARGET" ]; then
-	BUILD_TARGET="2015.2511"
+	BUILD_TARGET="2015.2642"
 fi
 
 # Default build directory.
