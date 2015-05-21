@@ -53,7 +53,7 @@ Your new project should contain the following files and folders:
 
 ### Workflow
 
-__NOTE:__ _You should use dailybuild 2015.2610 or higher when developing your plugins. If you are using a previous version, you will have to "flatten" the plugin file ( `plugin/PLUGIN_NAME.lua` => `plugin_PLUGIN_NAME.lua`) in order to load it in the Corona Simulator. You can still target versions earlier than 2015.2610; this is purely a convenience feature for plugin developers starting in 2015.2610._
+__NOTE:__ _You should use dailybuild 2015.2642 or higher when developing your plugins. If you are using a previous version, you will have to "flatten" the plugin file ( `plugin/PLUGIN_NAME.lua` => `plugin_PLUGIN_NAME.lua`) in order to load it in the Corona Simulator. You can still target versions earlier than 2015.2642; this is purely a convenience feature for plugin developers starting in 2015.2642._
 
 For workflow convenience, the test harness and library plugin code are integrated to simplify shader effect development:
 
