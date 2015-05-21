@@ -19,6 +19,18 @@ if not "%2"=="" (
 )
 
 set LUAC="%PATH_BAT%\bin\luac.exe"
+set BUILD_TARGET_VM="lua_51"
+if not "%3"=="" (
+	set BUILD_TARGET_VM="%3"
+	set LUAC="%PATH_BAT%/bin/luac-%BUILD_TARGET_VM%"
+
+	REM Verify that this VM is supported.
+	if not exist "%LUAC%" (
+		echo Error: Lua VM '%BUILD_TARGET_VM%' is not supported.
+		exit -1
+	)
+)
+
 set SevenZip="%PATH_BAT%\bin\7za.exe"
 
 set LIBRARY_NAME=PLUGIN_NAME
@@ -35,7 +47,7 @@ if exist "%ZIP_PATH%" (
 )
 
 REM Create directories
-set BUILD_DIR_LUA=%BUILD_DIR%\plugins\%BUILD_TARGET%\lua
+set BUILD_DIR_LUA=%BUILD_DIR%\plugins\%BUILD_TARGET%\lua\%BUILD_TARGET_VM%
 mkdir "%BUILD_DIR_LUA%"
 
 REM ---------------------------------------------------------------------------

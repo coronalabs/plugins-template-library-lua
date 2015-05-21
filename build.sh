@@ -5,9 +5,6 @@ path=$(dirname "$0")
 LIBRARY_NAME="PLUGIN_NAME"
 LIBRARY_TYPE="plugin"
 
-# Set to false if you do not want to compile your lua files into bytecode.
-compile=true
-
 # Verify arguments
 usage() {
 	echo "$0 [daily_build_number [dst_dir]]"
@@ -27,8 +24,8 @@ checkError() {
 
 # Canonicalize relative paths to absolute paths
 pushd "$path" > /dev/null
-dir=$(pwd)
-path=$dir
+	dir=$(pwd)
+	path=$dir
 popd > /dev/null
 
 # Default target version.
@@ -43,13 +40,27 @@ if [ ! -e "$BUILD_DIR" ]; then
 	BUILD_DIR="$path/build"
 fi
 
+# Set lua compiler.
+LUAC="$path/bin/luac"
+BUILD_TARGET_VM="lua_51"
+if [ ! -z "$3" ]; then
+	LUAC="$path/bin/luac-$3"
+	BUILD_TARGET_VM="$3"
+
+	# Verify that this VM is supported.
+	if [ ! -f "$LUAC" ]; then
+		echo "Error: Lua VM '$3' is not supported."
+		exit -1
+	fi
+fi
+
 # Clean build directory.
 if [ -e "$BUILD_DIR" ]; then
 	rm -rf "$BUILD_DIR"
 fi
 
 # Get our Lua directory.
-BUILD_DIR_LUA="$BUILD_DIR/plugins/$BUILD_TARGET/lua"
+BUILD_DIR_LUA="$BUILD_DIR/plugins/$BUILD_TARGET/lua/$BUILD_TARGET_VM"
 mkdir -p "$BUILD_DIR_LUA"
 
 # Copy
@@ -61,21 +72,18 @@ cp -vrf "$path"/metadata.json "$BUILD_DIR"
 checkError
 
 # Compile lua files.
-LUAC="$path/bin/luac"
-if [ "$compile" ]; then
-	echo ""
-	echo "[compile]"
-	
-	"$LUAC" -v
+echo ""
+echo "[compile]"
+
+"$LUAC" -v
+checkError
+
+find "$BUILD_DIR_LUA" -type f -name "*.lua" | while read luaFile; do
+	echo "compiling: $luaFile"
+	"$LUAC" -s -o "$luaFile" -- "$luaFile"
 	checkError
-	
-	find "$BUILD_DIR_LUA" -type f -name "*.lua" | while read luaFile; do
-		echo "compiling: $luaFile"
-		"$LUAC" -s -o "$luaFile" -- "$luaFile"
-		checkError
-	done
-	checkError
-fi
+done
+checkError
 
 echo ""
 echo "[zip]"
