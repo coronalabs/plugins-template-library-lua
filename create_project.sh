@@ -30,7 +30,11 @@ if [ -d "$DST_DIR" ]; then
 	echo "ERROR: The build directory already exists. Please specify a new directory or delete $DST_DIR"
 	exit -1
 fi
-rsync -av --exclude ".git*" --exclude "*.DS_Store" --exclude "create_project.*" --exclude "*.zip" --exclude "bin/*.markdown" --exclude "Readme.markdown" "$path"/ "$DST_DIR"
+rsync -av --exclude ".git*" --exclude "*.DS_Store" --exclude "create_project.*" --exclude "*.zip" --exclude "bin/*.markdown" --exclude "Readme.markdown" --exclude "tmp/" "$path"/ "$DST_DIR"
+checkError
+cp "$path/tmp/build.bat" "$DST_DIR/build.bat"
+checkError
+cp "$path/tmp/build.sh" "$DST_DIR/build.sh"
 checkError
 
 # PLUGIN_NAME substitution

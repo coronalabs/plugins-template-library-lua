@@ -33,6 +33,7 @@ if exist "%dst%" (
 REM [Copy into new project folder]
 echo [copy]
 xcopy "%src%" "%dst%" /I /S /EXCLUDE:.bat_ignore
+xcopy "%src%\tmp\build.*" "..\test\" /y
 
 REM [Rename]
 echo.
