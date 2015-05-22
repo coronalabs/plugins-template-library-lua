@@ -80,7 +80,7 @@ Device testing is critical for several reasons:
 
 ### Preparing for Submission
 
-If you'd like to submit a plugin, there are a few more steps you need to take:
+If you'd like to [submit a plugin](https://store.coronalabs.com/corona-store-application), there are a few more steps you need to take:
 
 1. Update [metadata.json](metadata.json). 
 	* This contains several strings in ALL CAPS that should be replaced with information specific to your plugin. 
