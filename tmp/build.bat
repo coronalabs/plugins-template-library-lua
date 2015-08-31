@@ -55,7 +55,7 @@ REM Copy files over.
 REM ---------------------------------------------------------------------------
 
 echo [copy]
-xcopy /I /S "%PATH_BAT%\lua\%LIBRARY_TYPE%" "%BUILD_DIR_LUA%" /EXCLUDE:.bat_ignore
+xcopy /I /S "%PATH_BAT%\lua\%LIBRARY_TYPE%" "%BUILD_DIR_LUA%\%LIBRARY_TYPE%" /EXCLUDE:.bat_ignore
 copy "%PATH_BAT%\metadata.json" "%BUILD_DIR%\metadata.json"
 
 REM ---------------------------------------------------------------------------

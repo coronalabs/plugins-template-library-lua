@@ -87,7 +87,7 @@ checkError
 
 echo ""
 echo "[zip]"
-ZIP_FILE="$path/build-$LIBRARY_NAME.zip"
+ZIP_FILE="$path/plugin-$LIBRARY_NAME.zip"
 cd "$BUILD_DIR" > /dev/null
 	rm -f "$ZIP_FILE"
 	zip -r -x '*.DS_Store' @ "$ZIP_FILE" ./*
