@@ -1,4 +1,4 @@
-# Project Template for Lua Plugins
+## Project Template for Lua Plugins
 
 This is a template/bundle for Corona developers interested in packaging Lua code into a reusable plugin.
 
