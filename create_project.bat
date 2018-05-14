@@ -5,8 +5,8 @@ REM ---------------------------------------------------------------------------
 REM Validate args
 REM ---------------------------------------------------------------------------
 
-if "%1"=="" goto OnShowCommandLineHelp
-if "%2"=="" goto OnShowCommandLineHelp
+if [%1]==[] goto OnShowCommandLineHelp
+if [%2]==[] goto OnShowCommandLineHelp
 
 REM ---------------------------------------------------------------------------
 REM Create Project
